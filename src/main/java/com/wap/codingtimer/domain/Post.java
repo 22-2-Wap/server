@@ -23,14 +23,17 @@ public class Post {
     @JoinColumn(name = "member_id")
     private Member member;
 
-
     private String topic;
-
     private String content;
-
     private String category;
-
     private int likes;
-
     private LocalDateTime date;
+
+    /**
+     * 비즈니스 로직
+     */
+    public void setDate() {
+        this.date = LocalDateTime.now();
+    }
+
 }

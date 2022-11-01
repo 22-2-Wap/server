@@ -25,19 +25,5 @@ public class Timer {
     private LocalDateTime lastEndedTime;
 
     private StudyingStatus status;
-
     private int sum;
-
-    /*
-      비즈니스 로직
-     */
-    public void start() {
-        this.timerStart = LocalDateTime.now();
-        this.status = StudyingStatus.STUDY;
-    }
-
-    public void stop() {
-        this.timerStop = LocalDateTime.now();
-        this.status = StudyingStatus.REST;
-    }
 }
