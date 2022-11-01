@@ -36,6 +36,15 @@ out/
 ### VS Code ###
 .vscode/
 
+
+
 ### yml 설정 파일 ###
 src/main/resources/application.yml
 src/test/resources/application.yml
+
+### Mac 환경 .DS_Store 임시 파일 제외 ###
+.DS_Store
+src/.DS_Store
+src/main/.DS_Store
+src/main/resources/
+src/test/.DS_Store
