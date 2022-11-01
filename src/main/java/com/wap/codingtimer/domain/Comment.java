@@ -18,11 +18,26 @@ public class Comment {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "post_id")
     private Post post;
 
     private String content;
-
     private LocalDateTime dateTime;
+
+
+    /**
+     * 비즈니스 로직
+     */
+    public void setDateTime() {
+        this.dateTime = LocalDateTime.now();
+    }
+
+    /**
+     * 연관관계 메소드
+     */
+    public void setPost(Post post) {
+        this.post = post;
+        post.getComments().add(this);
+    }
 }

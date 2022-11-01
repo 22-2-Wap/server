@@ -13,11 +13,11 @@ public class Friend {
     @Column(name = "friend_id")
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "member_id", name = "first_member")
     private Member firstMember;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(referencedColumnName = "member_id", name = "second_member")
     private Member secondMember;
 
