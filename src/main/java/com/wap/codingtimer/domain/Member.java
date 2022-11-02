@@ -17,4 +17,8 @@ public class Member {
 
     @Column(unique = true)
     private String nickname;
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }
