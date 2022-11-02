@@ -27,13 +27,13 @@ public class Post {
     private String content;
     private String category;
     private int likes;
-    private LocalDateTime date;
+    private LocalDateTime dateTime;
 
     /**
      * 비즈니스 로직
      */
-    public void setDate() {
-        this.date = LocalDateTime.now();
+    public void setDateTime() {
+        this.dateTime = LocalDateTime.now();
     }
 
 }
