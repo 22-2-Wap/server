@@ -29,6 +29,14 @@ public class Comment {
     /**
      * 비즈니스 로직
      */
+    public void setMember(Member member) {
+        this.member=member;
+    }
+
+    public void setContent(String content) {
+        this.content=content;
+    }
+
     public void setDateTime() {
         this.dateTime = LocalDateTime.now();
     }
