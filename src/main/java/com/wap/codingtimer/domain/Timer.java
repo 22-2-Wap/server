@@ -1,12 +1,14 @@
 package com.wap.codingtimer.domain;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@ToString
 public class Timer {
 
     @Id
