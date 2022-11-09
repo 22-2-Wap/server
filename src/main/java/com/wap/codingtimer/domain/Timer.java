@@ -26,4 +26,35 @@ public class Timer {
 
     private StudyingStatus status;
     private int sum;
+
+    /**
+     * 도메인 로직
+     */
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setTimerStart(LocalDateTime timerStart) {
+        this.timerStart = timerStart;
+    }
+
+    public void setTimerStop(LocalDateTime timerStop) {
+        this.timerStop = timerStop;
+    }
+
+    public void setFirstStartedTime(LocalDateTime firstStartedTime) {
+        this.firstStartedTime = firstStartedTime;
+    }
+
+    public void setLastEndedTime(LocalDateTime lastEndedTime) {
+        this.lastEndedTime = lastEndedTime;
+    }
+
+    public void setStatus(StudyingStatus status) {
+        this.status = status;
+    }
+
+    public void setSum(int sum) {
+        this.sum = sum;
+    }
 }
