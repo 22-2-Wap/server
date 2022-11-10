@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Optional;
@@ -24,101 +25,97 @@ public class TimerService {
     private final MemberRepository memberRepository;
 
     private final LocalTime TIME_OF_THE_DAY_STARTED = LocalTime.of(6, 0);
-    private final int MAX_DIFF_HOUR = 8;
+    private final int MAX_DIFF_MINUTES = 8 * 60;
 
+    @Transactional
+    public Timer getTimer(Long memberId) {
+        Optional<Timer> optionalTimer = timerRepository.findRecentTimer(memberId);
+        LocalDate today = getTodayDateTime();
+
+        //해당 유저의 타이머가 없거나 지난 날의 타이머일 때
+        if (optionalTimer.isEmpty() || optionalTimer.get().getDate().isBefore(today)) {
+            Timer timer = new Timer(today);
+            timer.setMember(memberRepository.findById(memberId).get());
+            timerRepository.save(timer);
+
+            return timer;
+        }
+
+        //오늘의 타이머가 있을 때
+        return optionalTimer.get();
+    }
+
+    @Transactional
     public CurrentTimerStatusDto getCurrentUserStatus(Long memberId) {
-        Optional<Timer> optionalTimer = timerRepository.findTopByMemberIdOrderByFirstStartedTimeDesc(memberId);
-        LocalDateTime now = LocalDateTime.now();
+        Member member = memberRepository.findById(memberId).get();
+        Timer timer = getTimer(memberId);
 
-        if (optionalTimer.isEmpty())
-            return new CurrentTimerStatusDto(0, now, StudyingStatus.REST);
-
-        Timer timer = optionalTimer.get();
-
-        if (timer.getStatus() == StudyingStatus.REST)
-            return new CurrentTimerStatusDto(0, now, StudyingStatus.REST);
-
-        Duration between = Duration.between(timer.getTimerStart(), now);
-        int seconds = (int) between.getSeconds();
-
-        return new CurrentTimerStatusDto(seconds, now, StudyingStatus.STUDY);
+        return new CurrentTimerStatusDto(member.getNickname(),
+                timer.getSumMinutes(),
+                LocalDateTime.now(),
+                timer.getStatus());
     }
 
     @Transactional
     public Timer start(Long memberId) {
-        Member member = memberRepository.findById(memberId).get();
-        Optional<Timer> optionalTimer = timerRepository.findTopByMemberIdOrderByFirstStartedTimeDesc(memberId);
+        Timer timer = getTimer(memberId);
+        LocalDateTime now = LocalDateTime.now();
 
-        //타이머가 하나도 없으면 타이머 생성
-        if (optionalTimer.isEmpty())
-            return timerRepository.save(createTimer(member));
+        if (timer.getSumMinutes() == 0)
+            timer.setFirstStartedTime(now);
 
-        Timer userTimer = optionalTimer.get();
-        LocalDateTime today = getTodayDateTime();
+        timer.setTimerStart(now);
+        timer.setStatus(StudyingStatus.STUDY);
 
-        //하루가 지났으면 타이머 생성
-        if (today.isAfter(userTimer.getTimerStart()))
-            return timerRepository.save(createTimer(member));
-
-        //하루가 안 지났으면 기존 타이머 리턴
-        userTimer.setStatus(StudyingStatus.STUDY);
-        userTimer.setTimerStart(LocalDateTime.now());
-
-        return userTimer;
+        return timer;
     }
 
     @Transactional
     public void stop(Long memberId) {
-        Timer userTimer = timerRepository.findTopByMemberIdOrderByFirstStartedTimeDesc(memberId).get();
-        userTimer.setStatus(StudyingStatus.REST);
-
-        LocalDateTime today = getTodayDateTime();
+        LocalDate today = getTodayDateTime();
+        LocalDateTime todayStartedTime = today.atTime(TIME_OF_THE_DAY_STARTED);
         LocalDateTime now = LocalDateTime.now();
 
-        Duration between = Duration.between(userTimer.getTimerStart(), now);
-        int diff = (int) between.getSeconds() / 60 / 60;
+        Timer timer = timerRepository.findRecentTimer(memberId).get();
+        int difference = getTimeDifference(timer.getTimerStart(), now);
 
-        //최대 시간을 초과했다면 공부 시간 인정 X
-        if (diff > MAX_DIFF_HOUR)
+        timer.setStatus(StudyingStatus.REST);
+
+        //최대 연속 공부 시간을 넘긴 경우
+        if (difference > MAX_DIFF_MINUTES)
             return;
 
-        //하루가 안 지났으면 기존 타이머 사용
-        if (userTimer.getTimerStart().isAfter(today)) {
-            userTimer.setTimerStop(now);
-            userTimer.setLastEndedTime(now);
-            userTimer.setSum(userTimer.getSum() + diff);
+        //날짜가 같은 경우
+        if (timer.getDate().isEqual(today)) {
+            timer.setTimerStop(now);
+            timer.setLastEndedTime(now);
+            timer.addSumMinutes(difference);
 
             return;
         }
 
-        /**
-         *        하루가 지났으면 새 타이머 사용
-         */
-        //이전 타이머 오늘 오전 6시로 마무리
-        between = Duration.between(userTimer.getTimerStart(), today);
-        diff = (int) between.getSeconds() / 60 / 60;
+        //날짜가 지난 경우
+        //기존 타이머 세팅
+        difference = getTimeDifference(timer.getTimerStart(), now);
+        timer.addSumMinutes(difference);
+        timer.setTimerStop(todayStartedTime);
+        timer.setLastEndedTime(todayStartedTime);
 
-        userTimer.setTimerStop(today);
-        userTimer.setLastEndedTime(today);
-        userTimer.setSum(diff);
-
-        //새 타이머 현재 시각으로 마무리
-        between = Duration.between(today, now);
-        diff = (int) between.getSeconds() / 60 / 60;
-
-        Timer newTimer = new Timer();
-        newTimer.setMember(memberRepository.findById(memberId).get());
-        newTimer.setTimerStart(today);
-        newTimer.setFirstStartedTime(today);
-        newTimer.setTimerStop(now);
-        newTimer.setLastEndedTime(now);
-        newTimer.setStatus(StudyingStatus.REST);
-        newTimer.setSum(diff);
-
-        timerRepository.save(newTimer);
+        //새 타이머 세팅
+        difference = getTimeDifference(timer.getTimerStart(), now);
+        timer = getTimer(memberId);
+        timer.addSumMinutes(difference);
+        timer.setFirstStartedTime(todayStartedTime);
+        timer.setTimerStart(todayStartedTime);
+        timer.setTimerStop(now);
+        timer.setLastEndedTime(now);
     }
 
-    private LocalDateTime getTodayDateTime() {
+    private int getTimeDifference(LocalDateTime before, LocalDateTime after) {
+        return (int) (Duration.between(before, after).getSeconds() / 60);
+    }
+
+    private LocalDate getTodayDateTime() {
         LocalDateTime today = LocalDateTime.now();
 
         if (today.getHour() > 6)
@@ -126,19 +123,6 @@ public class TimerService {
         else
             today = LocalDateTime.of(today.minusDays(1L).toLocalDate(), TIME_OF_THE_DAY_STARTED);
 
-        return today;
+        return today.toLocalDate();
     }
-
-    private Timer createTimer(Member member) {
-        Timer timer = new Timer();
-        timer.setMember(member);
-
-        LocalDateTime now = LocalDateTime.now();
-        timer.setFirstStartedTime(now);
-        timer.setTimerStart(now);
-        timer.setStatus(StudyingStatus.STUDY);
-
-        return timer;
-    }
-
 }

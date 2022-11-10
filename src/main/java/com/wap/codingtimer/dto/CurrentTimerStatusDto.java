@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @ToString
 @RequiredArgsConstructor
 public class CurrentTimerStatusDto {
-
-    private final int sec;
+    private final String nickname;
+    private final int minutes;
     private final LocalDateTime serverTime;
     private final StudyingStatus status;
 }
