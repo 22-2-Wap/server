@@ -25,27 +25,22 @@ public class Comment {
     private String content;
     private LocalDateTime dateTime;
 
-
     /**
      * 비즈니스 로직
      */
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
     public void setMember(Member member) {
-        this.member=member;
+        this.member = member;
     }
 
     public void setContent(String content) {
-        this.content=content;
+        this.content = content;
     }
 
     public void setDateTime() {
         this.dateTime = LocalDateTime.now();
-    }
-
-    /**
-     * 연관관계 메소드
-     */
-    public void setPost(Post post) {
-        this.post = post;
-        post.getComments().add(this);
     }
 }

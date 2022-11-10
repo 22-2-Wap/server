@@ -1,14 +1,14 @@
 package com.wap.codingtimer.domain;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
+@ToString
 public class Post {
 
     @Id
@@ -16,17 +16,14 @@ public class Post {
     @Column(name = "post_id")
     private Long id;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Comment> comments = new ArrayList<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
+    private int likes;
     private String topic;
     private String content;
     private String category;
-    private int likes;
     private LocalDateTime dateTime;
 
     /**
@@ -36,4 +33,23 @@ public class Post {
         this.dateTime = LocalDateTime.now();
     }
 
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
 }

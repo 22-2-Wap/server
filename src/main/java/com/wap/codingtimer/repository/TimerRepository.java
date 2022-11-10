@@ -5,6 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TimerRepository extends JpaRepository<Timer, Long> {
-    Timer findTopByMember_IdOrderByFirstStartedTime(Long member_id);
+public interface TimerRepository extends JpaRepository<Timer, Long>, TimerCustomRepository {
 }

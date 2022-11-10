@@ -1,11 +1,13 @@
 package com.wap.codingtimer.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Friend {
 
     @Id
@@ -29,7 +31,8 @@ public class Friend {
         this.secondMember = member2;
         this.relation = friendRelation;
     }
-    public void setRelation(){
+
+    public void setRelation() {
         this.relation = FriendRelation.ACCEPT;
     }
 }

@@ -7,12 +7,9 @@ import com.wap.codingtimer.repository.CommentRepository;
 import com.wap.codingtimer.repository.MemberRepository;
 import com.wap.codingtimer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
-
 
 @Service
 @Transactional(readOnly = true)
@@ -39,12 +36,7 @@ public class CommentService {
     }
 
     @Transactional
-    public void delete(Long commentId, Long memberId, Long postId) {
-        Member member = memberRepository.findById(memberId).get();
-        Post post = postRepository.findById(postId).get();
-        Comment comment = commentRepository.findById(commentId).get();
-
-        post.getComments().remove(comment);
-        commentRepository.delete(comment);
+    public void delete(Long commentId) {
+        commentRepository.deleteById(commentId);
     }
 }
