@@ -7,9 +7,9 @@ import com.wap.codingtimer.repository.CommentRepository;
 import com.wap.codingtimer.repository.MemberRepository;
 import com.wap.codingtimer.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @Transactional(readOnly = true)
