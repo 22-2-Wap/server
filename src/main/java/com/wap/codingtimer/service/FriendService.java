@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,32 +21,24 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final MemberRepository memberRepository;
 
-    public String[] getFriendsNames(Long memberId) {
-
-        List<Friend> requestFriends = friendRepository.findFriendsByFirstMemberIdAndRelationIs(
-                memberId, FriendRelation.ACCEPT);
-
-        List<Friend> responseFriends = friendRepository.findFriendsBySecondMemberIdAndRelationIs(
-                memberId, FriendRelation.ACCEPT);
-
-        return Stream.concat(
-                        requestFriends.stream()
-                                .map(Friend::getSecondMember),
-                        responseFriends.stream()
-                                .map(Friend::getFirstMember))
-                .map(Member::getNickname)
-                .toArray(String[]::new);
+    public List<Member> getFriends(Long memberId) {
+        return friendRepository.findFriends(memberId);
     }
 
-
-    public String[] getRequestNames(Long memberId) {
-        List<Friend> requestFriends = friendRepository.findFriendsByFirstMemberIdAndRelationIs(
-                memberId, FriendRelation.REQUEST);
-
-        return requestFriends.stream()
+    public List<String> getRequestedOfferNames(Long memberId) {
+        return friendRepository.findMemberRequested(memberId)
+                .stream()
                 .map(Friend::getSecondMember)
                 .map(Member::getNickname)
-                .toArray(String[]::new);
+                .toList();
+    }
+
+    public List<String> getReceivedOfferNames(Long memberId) {
+        return friendRepository.findMemberReceived(memberId)
+                .stream()
+                .map(Friend::getSecondMember)
+                .map(Member::getNickname)
+                .toList();
     }
 
     @Transactional
@@ -55,44 +46,32 @@ public class FriendService {
         if (!memberRepository.existsMemberByNickname(nickname))
             throw new NoSuchElementException("해당 유저가 존재하지 않습니다.");
 
-        long nicknameId = memberRepository.findByNickname(nickname).getId();
+        Member member = memberRepository.findById(memberId).get();
+        Member otherMember = memberRepository.findByNickname(nickname);
 
-        if (friendRepository.existsByFirstMember_IdAndSecondMember_Id(memberId, nicknameId))
+        Optional<Friend> relation = friendRepository.findRelation(memberId, otherMember.getId());
+
+        if (relation.isPresent())
             throw new NoSuchElementException("이미 요청되거나 추가된 친구입니다.");
 
-        Member member1 = memberRepository.findById(memberId).get();
-        Member member2 = memberRepository.findById(nicknameId).get();
-        Friend friend1 = new Friend(member1, member2, FriendRelation.REQUEST);
-        return friendRepository.save(friend1);
+        Friend friend = new Friend(member, otherMember, FriendRelation.REQUEST);
+        return friendRepository.save(friend);
     }
 
+    //거절 또는 친구 삭제
     @Transactional
-    public void revert(Long memberId, String nickname) throws RuntimeException {
+    public void delete(Long memberId, String nickname) throws RuntimeException {
         long nicknameId = memberRepository.findByNickname(nickname).getId();
+        Friend friend = friendRepository.findRelation(memberId, nicknameId).get();
 
-
-        Optional<Friend> friend1 = friendRepository.findByFirstMember_IdAndSecondMember_Id(memberId, nicknameId);
-        Optional<Friend> friend2 = friendRepository.findByFirstMember_IdAndSecondMember_Id(nicknameId, memberId);
-        friend1.ifPresent(friendRepository::delete);
-        friend2.ifPresent(friendRepository::delete);
+        friendRepository.delete(friend);
     }
 
     @Transactional
     public void acceptRequest(Long memberId, String nickname) throws RuntimeException {
         long nicknameId = memberRepository.findByNickname(nickname).getId();
+        Friend friend = friendRepository.findRelation(memberId, nicknameId).get();
 
-        Optional<Friend> friend = friendRepository.findByFirstMember_IdAndSecondMember_Id(memberId, nicknameId);
-
-        friend.get().setRelation();
+        friend.setRelation();
     }
-
-    @Transactional
-    public void rejectRequest(Long memberId, String nickname) throws RuntimeException {
-        long nicknameId = memberRepository.findByNickname(nickname).getId();
-
-        Optional<Friend> friend = friendRepository.findByFirstMember_IdAndSecondMember_Id(memberId, nicknameId);
-
-        friendRepository.delete(friend.get());
-    }
-
 }
