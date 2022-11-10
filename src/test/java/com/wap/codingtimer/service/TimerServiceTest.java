@@ -7,8 +7,10 @@ import com.wap.codingtimer.repository.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@Transactional
 class TimerServiceTest {
 
     @Autowired
@@ -39,5 +41,4 @@ class TimerServiceTest {
         //then
         System.out.println("timer = " + timer);
     }
-
 }
