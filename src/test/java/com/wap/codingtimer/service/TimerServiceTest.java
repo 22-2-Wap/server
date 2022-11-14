@@ -1,9 +1,10 @@
 package com.wap.codingtimer.service;
 
-import com.wap.codingtimer.domain.Member;
-import com.wap.codingtimer.domain.Timer;
-import com.wap.codingtimer.dto.CurrentTimerStatusDto;
-import com.wap.codingtimer.repository.MemberRepository;
+import com.wap.codingtimer.member.domain.Member;
+import com.wap.codingtimer.member.repository.MemberRepository;
+import com.wap.codingtimer.timer.TimerService;
+import com.wap.codingtimer.timer.domain.Timer;
+import com.wap.codingtimer.timer.dto.CurrentTimerStatusDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

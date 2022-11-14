@@ -1,6 +1,7 @@
 package com.wap.codingtimer.repository;
 
-import com.wap.codingtimer.domain.Comment;
+import com.wap.codingtimer.member.repository.CommentRepository;
+import com.wap.codingtimer.post.domain.Comment;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

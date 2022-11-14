@@ -1,10 +1,11 @@
 package com.wap.codingtimer.service;
 
-import com.wap.codingtimer.domain.Member;
-import com.wap.codingtimer.domain.Post;
-import com.wap.codingtimer.dto.PageWithCommentsDto;
-import com.wap.codingtimer.repository.MemberRepository;
-import com.wap.codingtimer.repository.PostRepository;
+import com.wap.codingtimer.member.domain.Member;
+import com.wap.codingtimer.member.repository.MemberRepository;
+import com.wap.codingtimer.post.PostService;
+import com.wap.codingtimer.post.domain.Post;
+import com.wap.codingtimer.post.dto.PageWithCommentsDto;
+import com.wap.codingtimer.post.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

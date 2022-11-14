@@ -1,8 +1,10 @@
 package com.wap.codingtimer.repository;
 
-import com.wap.codingtimer.domain.Friend;
-import com.wap.codingtimer.domain.FriendRelation;
-import com.wap.codingtimer.domain.Member;
+import com.wap.codingtimer.member.domain.Friend;
+import com.wap.codingtimer.member.domain.FriendRelation;
+import com.wap.codingtimer.member.domain.Member;
+import com.wap.codingtimer.member.repository.FriendRepository;
+import com.wap.codingtimer.member.repository.MemberRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
