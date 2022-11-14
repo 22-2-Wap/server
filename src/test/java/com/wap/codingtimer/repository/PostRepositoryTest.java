@@ -1,6 +1,7 @@
 package com.wap.codingtimer.repository;
 
-import com.wap.codingtimer.domain.Post;
+import com.wap.codingtimer.post.domain.Post;
+import com.wap.codingtimer.post.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import javax.transaction.Transactional;
-
 import java.util.List;
 
 @SpringBootTest
