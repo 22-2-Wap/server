@@ -22,7 +22,7 @@ class TimerServiceTest {
     @Test
     void 신규_유저의_타이머_상태() throws Exception {
         //given
-        Member member = memberRepository.save(new Member());
+        Member member = memberRepository.save(new Member("id", "pw", "nickname"));
 
         //when
         CurrentTimerStatusDto timerDto = timerService.getCurrentUserStatus(member.getId());
@@ -34,7 +34,7 @@ class TimerServiceTest {
     @Test
     void 신규_유저의_타이머_시작() throws Exception {
         //given
-        Member member = memberRepository.save(new Member());
+        Member member = memberRepository.save(new Member("id", "pw", "nickname"));
 
         //when
         Timer timer = timerService.start(member.getId());

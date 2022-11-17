@@ -31,9 +31,9 @@ class PostServiceTest {
 
     @BeforeEach
     void addPosts() {
-        Member member = new Member();
+        Member member = new Member("idfsadfsad", "pw", "nicknameaefasef");
         member.setNickname("재현ㅎㅎ");
-        member = memberRepository.save(member);
+        member = memberRepository.saveAndFlush(member);
 
         for (int i = 0; i < 15; i++) {
             postService.save("Algorithm", member.getId(), "제목", "내용 ㅎㅎ");
@@ -70,7 +70,7 @@ class PostServiceTest {
     @Test
     void 댓글과_같이_포스트_가져오기() throws Exception {
         //given
-        Member member = new Member();
+        Member member = new Member("idqwe", "pw", "nickfnamade");
         member = memberRepository.save(member);
 
         //when
@@ -115,7 +115,7 @@ class PostServiceTest {
     void 좋아요_누르기_테스트() throws Exception {
         //given
         int page = 0;
-        Member member = memberRepository.save(new Member());
+        Member member = memberRepository.save(new Member("id", "pw", "nickname"));
         List<Post> allPostsInPage = postService.getAllPostsInPage(page);
 
         //when
@@ -131,7 +131,7 @@ class PostServiceTest {
     void 좋아요_취소_테스트() throws Exception {
         //given
         int page = 0;
-        Member member = memberRepository.save(new Member());
+        Member member = memberRepository.save(new Member("id", "pw", "nickname"));
 
         //when
         postService.getAllPostsInPage(page)

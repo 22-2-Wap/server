@@ -18,7 +18,7 @@ public class FriendCustomRepositoryImpl implements FriendCustomRepository {
     private final QFriend friend = QFriend.friend;
 
     @Override
-    public List<Member> findFriends(Long memberId) {
+    public List<Member> findFriends(String memberId) {
         return jpaQueryFactory.selectFrom(friend)
                 .where(friend.relation.eq(FriendRelation.ACCEPT)
                         .and(friend.firstMember.id.eq(memberId))
@@ -34,7 +34,7 @@ public class FriendCustomRepositoryImpl implements FriendCustomRepository {
     }
 
     @Override
-    public List<Friend> findMemberRequested(Long memberId) {
+    public List<Friend> findMemberRequested(String memberId) {
         return jpaQueryFactory.selectFrom(friend)
                 .where(friend.relation.eq(FriendRelation.REQUEST))
                 .where(friend.firstMember.id.eq(memberId))
@@ -42,7 +42,7 @@ public class FriendCustomRepositoryImpl implements FriendCustomRepository {
     }
 
     @Override
-    public List<Friend> findMemberReceived(Long memberId) {
+    public List<Friend> findMemberReceived(String memberId) {
         return jpaQueryFactory.selectFrom(friend)
                 .where(friend.relation.eq(FriendRelation.REQUEST))
                 .where(friend.secondMember.id.eq(memberId))
@@ -50,7 +50,7 @@ public class FriendCustomRepositoryImpl implements FriendCustomRepository {
     }
 
     @Override
-    public Optional<Friend> findRelation(Long memberId, Long otherMemberId) {
+    public Optional<Friend> findRelation(String memberId, String otherMemberId) {
         return Optional.ofNullable(jpaQueryFactory.selectFrom(friend)
                 .where(friend.firstMember.id.eq(memberId)
                         .or(friend.secondMember.id.eq(memberId)))

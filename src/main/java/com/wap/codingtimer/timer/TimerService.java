@@ -28,7 +28,7 @@ public class TimerService {
     private final int MAX_DIFF_MINUTES = 8 * 60;
 
     @Transactional
-    public Timer getTimer(Long memberId) {
+    public Timer getTimer(String memberId) {
         Optional<Timer> optionalTimer = timerRepository.findRecentTimer(memberId);
         LocalDate today = getTodayDateTime();
 
@@ -46,7 +46,7 @@ public class TimerService {
     }
 
     @Transactional
-    public CurrentTimerStatusDto getCurrentUserStatus(Long memberId) {
+    public CurrentTimerStatusDto getCurrentUserStatus(String memberId) {
         Member member = memberRepository.findById(memberId).get();
         Timer timer = getTimer(memberId);
 
@@ -57,7 +57,7 @@ public class TimerService {
     }
 
     @Transactional
-    public Timer start(Long memberId) {
+    public Timer start(String memberId) {
         Timer timer = getTimer(memberId);
         LocalDateTime now = LocalDateTime.now();
 
@@ -71,7 +71,7 @@ public class TimerService {
     }
 
     @Transactional
-    public void stop(Long memberId) {
+    public void stop(String memberId) {
         LocalDate today = getTodayDateTime();
         LocalDateTime todayStartedTime = today.atTime(TIME_OF_THE_DAY_STARTED);
         LocalDateTime now = LocalDateTime.now();

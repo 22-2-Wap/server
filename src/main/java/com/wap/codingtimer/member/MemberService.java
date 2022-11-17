@@ -26,18 +26,23 @@ public class MemberService {
     }
 
     @Transactional
-    public Long changeNickname(Long memberId, String nickname) {
+    public String register(String id, String pw, String nickname) {
+        return memberRepository.save(new Member(id, pw, nickname)).getId();
+    }
+
+    @Transactional
+    public String changeNickname(String memberId, String nickname) {
         Member member = memberRepository.findById(memberId).get();
         member.setNickname(nickname);
 
         return memberId;
     }
 
-    public List<Member> getFriends(Long memberId) {
+    public List<Member> getFriends(String memberId) {
         return friendRepository.findFriends(memberId);
     }
 
-    public List<String> getRequestedNames(Long memberId) {
+    public List<String> getRequestedNames(String memberId) {
         return friendRepository.findMemberRequested(memberId)
                 .stream()
                 .map(Friend::getSecondMember)
@@ -45,7 +50,7 @@ public class MemberService {
                 .toList();
     }
 
-    public List<String> getReceivedNames(Long memberId) {
+    public List<String> getReceivedNames(String memberId) {
         return friendRepository.findMemberReceived(memberId)
                 .stream()
                 .map(Friend::getSecondMember)
@@ -54,7 +59,7 @@ public class MemberService {
     }
 
     @Transactional
-    public Friend requestFriend(Long memberId, String nickname) throws RuntimeException {
+    public Friend requestFriend(String memberId, String nickname) {
         if (!memberRepository.existsMemberByNickname(nickname))
             throw new NoSuchElementException("해당 유저가 존재하지 않습니다.");
 
@@ -72,16 +77,16 @@ public class MemberService {
 
     //거절 또는 친구 삭제
     @Transactional
-    public void deleteFriend(Long memberId, String nickname) throws RuntimeException {
-        long nicknameId = memberRepository.findByNickname(nickname).getId();
+    public void deleteFriend(String memberId, String nickname) {
+        String nicknameId = memberRepository.findByNickname(nickname).getId();
         Friend friend = friendRepository.findRelation(memberId, nicknameId).get();
 
         friendRepository.delete(friend);
     }
 
     @Transactional
-    public void acceptRequest(Long memberId, String nickname) throws RuntimeException {
-        long nicknameId = memberRepository.findByNickname(nickname).getId();
+    public void acceptRequest(String memberId, String nickname) {
+        String nicknameId = memberRepository.findByNickname(nickname).getId();
         Friend friend = friendRepository.findRelation(memberId, nicknameId).get();
 
         friend.setRelation();

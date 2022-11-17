@@ -39,9 +39,9 @@ class MemberServiceTest {
     @BeforeEach
     void setUp() {
         IntStream.range(0, 5).forEach(o -> {
-            Member member = new Member();
+            Member member = new Member("id"+o, "pw", "nickname"+o);
             member.setNickname(String.valueOf(o));
-            memberRepository.save(member);
+            memberRepository.saveAndFlush(member);
             members.add(member);
         });
 
@@ -68,9 +68,9 @@ class MemberServiceTest {
     @Test
     void 친구_거절하기_전에_친구_요청_취소하면_예외발생() throws Exception {
         //given
-        Member member = memberRepository.save(new Member());
+        Member member = memberRepository.save(new Member("idfsae", "pw", "nickname1424143"));
         member.setNickname("서경룡");
-        Member member2 = memberRepository.save(new Member());
+        Member member2 = memberRepository.save(new Member("id2asfs", "pw", "nicknamefaef"));
         member2.setNickname("동경룡");
         memberService.requestFriend(member.getId(), member2.getNickname());
 

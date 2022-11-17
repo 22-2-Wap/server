@@ -68,6 +68,6 @@ class FriendRepositoryTest {
     }
 
     Member createMember() {
-        return memberRepository.save(new Member());
+        return memberRepository.save(new Member("id", "pw", "nickname"));
     }
 }

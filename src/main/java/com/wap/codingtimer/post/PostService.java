@@ -65,7 +65,7 @@ public class PostService {
     }
 
     @Transactional
-    public Long save(String category, Long memberId, String topic, String content) {
+    public Long save(String category, String memberId, String topic, String content) {
         Member member = memberRepository.findById(memberId).get();
 
         Post post = new Post();
@@ -101,7 +101,7 @@ public class PostService {
     }
 
     @Transactional
-    public void addLikes(Long memberId, Long postId) {
+    public void addLikes(String memberId, Long postId) {
         Optional<Likes> likes = likesRepository.findLikesByMemberIdAndPostId(memberId, postId);
         Post post = postRepository.findById(postId).get();
 
@@ -131,7 +131,7 @@ public class PostService {
     }
 
     @Transactional
-    public Long addComment(Long memberId, Long postId, String content) {
+    public Long addComment(String memberId, Long postId, String content) {
         Member member = memberRepository.findById(memberId).get();
         Post post = postRepository.findById(postId).get();
 

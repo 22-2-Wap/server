@@ -19,7 +19,7 @@ class memberRepositoryTest {
     @Test
     public void 회원저장() throws Exception{
         //given
-        Member member=new Member();
+        Member member=new Member("id", "pw", "nickname");
 
         //when
         memberRepository.save(member);
@@ -32,7 +32,7 @@ class memberRepositoryTest {
     @Test
     public void 중복회원_검사() throws Exception{
         //given
-        Member member1=new Member();
+        Member member1=new Member("id", "pw", "nickname");
 
         //when
         member1.setNickname("재현");

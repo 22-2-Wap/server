@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FriendCustomRepository {
-    List<Member> findFriends(Long memberId);
+    List<Member> findFriends(String memberId);
 
-    List<Friend> findMemberRequested(Long memberId);
+    List<Friend> findMemberRequested(String memberId);
 
-    List<Friend> findMemberReceived(Long memberId);
+    List<Friend> findMemberReceived(String memberId);
 
-    Optional<Friend> findRelation(Long memberId, Long otherMemberId);
+    Optional<Friend> findRelation(String memberId, String otherMemberId);
 }

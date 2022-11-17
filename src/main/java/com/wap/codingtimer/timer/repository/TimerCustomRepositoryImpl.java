@@ -16,7 +16,7 @@ public class TimerCustomRepositoryImpl implements TimerCustomRepository {
     private final QTimer timer = QTimer.timer;
 
     @Override
-    public Optional<Timer> findRecentTimer(Long memberId) {
+    public Optional<Timer> findRecentTimer(String memberId) {
         return Optional.ofNullable(
                 jpaQueryFactory.selectFrom(this.timer)
                         .orderBy(this.timer.date.desc())

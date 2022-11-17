@@ -30,6 +30,7 @@ public class Timer {
     private LocalDateTime firstStartedTime;
     private LocalDateTime lastEndedTime;
 
+    @Enumerated(EnumType.STRING)
     private StudyingStatus status;
     private int sumMinutes;
 
