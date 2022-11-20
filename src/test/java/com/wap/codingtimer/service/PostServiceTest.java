@@ -121,7 +121,8 @@ class PostServiceTest {
         //when
         allPostsInPage.forEach(o -> postService.addLikes(member.getId(), o.getId()));
         long likes = postService.getAllPostsInPage(page).stream()
-                .mapToInt(Post::getLikes)
+                .map(Post::getLikes)
+                .mapToInt(List::size)
                 .sum();
         //then
         assertThat(likes).isEqualTo(10);
@@ -142,7 +143,8 @@ class PostServiceTest {
 
         //then
         int sum = postService.getAllPostsInPage(page).stream()
-                .mapToInt(Post::getLikes)
+                .map(Post::getLikes)
+                .mapToInt(List::size)
                 .sum();
 
         assertThat(sum).isZero();

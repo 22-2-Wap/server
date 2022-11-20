@@ -32,7 +32,7 @@ public class Friend {
         this.relation = friendRelation;
     }
 
-    public void setRelation() {
+    public void acceptFriend() {
         this.relation = FriendRelation.ACCEPT;
     }
 }

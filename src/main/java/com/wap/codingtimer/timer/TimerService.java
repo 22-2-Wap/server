@@ -28,7 +28,7 @@ public class TimerService {
     private final int MAX_DIFF_MINUTES = 8 * 60;
 
     @Transactional
-    public Timer getTimer(String memberId) {
+    protected Timer getTimer(String memberId) {
         Optional<Timer> optionalTimer = timerRepository.findRecentTimer(memberId);
         LocalDate today = getTodayDateTime();
 
@@ -76,7 +76,10 @@ public class TimerService {
         LocalDateTime todayStartedTime = today.atTime(TIME_OF_THE_DAY_STARTED);
         LocalDateTime now = LocalDateTime.now();
 
+
+        Member member = memberRepository.findById(memberId).get();
         Timer timer = timerRepository.findRecentTimer(memberId).get();
+
         int difference = getTimeDifference(timer.getTimerStart(), now);
 
         timer.setStatus(StudyingStatus.REST);
@@ -85,6 +88,7 @@ public class TimerService {
         if (difference > MAX_DIFF_MINUTES)
             return;
 
+        member.addPoints(difference);
         //날짜가 같은 경우
         if (timer.getDate().isEqual(today)) {
             timer.setTimerStop(now);

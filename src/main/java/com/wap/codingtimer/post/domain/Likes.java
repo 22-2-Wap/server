@@ -30,5 +30,6 @@ public class Likes {
 
     public void setPost(Post post) {
         this.post = post;
+        post.getLikes().add(this);
     }
 }

@@ -1,12 +1,12 @@
 package com.wap.codingtimer.post;
 
 import com.wap.codingtimer.member.domain.Member;
-import com.wap.codingtimer.member.repository.CommentRepository;
 import com.wap.codingtimer.member.repository.MemberRepository;
 import com.wap.codingtimer.post.domain.Comment;
 import com.wap.codingtimer.post.domain.Likes;
 import com.wap.codingtimer.post.domain.Post;
 import com.wap.codingtimer.post.dto.PageWithCommentsDto;
+import com.wap.codingtimer.post.repository.CommentRepository;
 import com.wap.codingtimer.post.repository.LikesRepository;
 import com.wap.codingtimer.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,37 +30,24 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final LikesRepository likesRepository;
 
-    /**
-     * 페이지가 1이면 0번 튜플부터 9번 튜플까지
-     * 페이지가 2이면 10번 튜플부터 19번 튜플까지
-     */
-    private Pageable getPagingByDateTime(int page) {
-        return PageRequest.of(page, AMOUNT_OF_A_PAGE, Sort.Direction.DESC, "dateTime");
-    }
-
     public List<Post> getAllPostsInPage(int page) {
         Pageable paging = getPagingByDateTime(page);
-        List<Post> posts = postRepository.findAll(paging).getContent();
 
-        setLikes(posts.stream().map(Post::getId).toList());
-
-        return posts;
+        return postRepository.findAll(paging).getContent();
     }
 
     public List<Post> getAllPostsInCategoryAndPage(String category, int page) {
         Pageable paging = getPagingByDateTime(page);
-        List<Post> posts = postRepository.findAllByCategory(category, paging).getContent();
-        setLikes(posts.stream().map(Post::getId).toList());
 
-        return posts;
+        return postRepository.findAllByCategory(category, paging).getContent();
     }
 
     public PageWithCommentsDto getPageWithCommentsInPage(Long postId, int page) throws RuntimeException {
         Post post = postRepository.findById(postId).orElseThrow();
-        setLikes(List.of(post.getId()));
 
         Pageable paging = getPagingByDateTime(page);
         List<Comment> comments = commentRepository.findAllByPostId(postId, paging).getContent();
+
         return new PageWithCommentsDto(post, comments);
     }
 
@@ -81,6 +68,10 @@ public class PostService {
 
     @Transactional
     public void delete(Long postId) {
+        commentRepository.findAllByPostId(postId).stream()
+                .mapToLong(Comment::getId)
+                .forEach(commentRepository::deleteById);
+
         postRepository.deleteById(postId);
     }
 
@@ -88,46 +79,33 @@ public class PostService {
     public Long update(String category, Long postId, String topic, String content) {
         Post post = postRepository.findById(postId).get();
 
-        if (!topic.isBlank())
+        if (topic!=null)
             post.setTopic(topic);
-        if (!category.isBlank())
+        if (category!=null)
             post.setCategory(category);
-        if (!content.isBlank())
+        if (content!=null)
             post.setContent(content);
-
-        setLikes(List.of(postId));
 
         return post.getId();
     }
 
     @Transactional
     public void addLikes(String memberId, Long postId) {
-        Optional<Likes> likes = likesRepository.findLikesByMemberIdAndPostId(memberId, postId);
         Post post = postRepository.findById(postId).get();
 
-        if (likes.isPresent()) {
-            likesRepository.delete(likes.get());
-            post.setLikes(post.getLikes() - 1);
-            return;
-        }
+        Optional<Likes> likes = likesRepository.findLikesByMemberIdAndPostId(memberId, postId);
+        likes.ifPresentOrElse(o-> {
+            likesRepository.delete(o);
+            post.getLikes().remove(o);
+            }, ()->{
+                    Member member = memberRepository.findById(memberId).get();
 
-        Member member = memberRepository.findById(memberId).get();
-
-        Likes saveLikes = new Likes();
-        saveLikes.setPost(post);
-        saveLikes.setMember(member);
-        likesRepository.save(saveLikes);
-
-        post.setLikes(post.getLikes() + 1);
-    }
-
-    @Transactional
-    public void setLikes(List<Long> postIds) {
-        for (Long postId : postIds) {
-            Post post = postRepository.findById(postId).get();
-            int likes = likesRepository.countLikesByPostId(postId);
-            post.setLikes(likes);
-        }
+                    Likes like = new Likes();
+                    like.setMember(member);
+                    like.setPost(post);
+                    likesRepository.save(like);
+                }
+        );
     }
 
     @Transactional
@@ -148,5 +126,19 @@ public class PostService {
     @Transactional
     public void removeComment(Long commentId) {
         commentRepository.deleteById(commentId);
+    }
+
+    public List<Post> getMemberPosts(String memberId, int page) {
+        Pageable paging = getPagingByDateTime(page);
+
+        return postRepository.findAllByMemberId(memberId, paging).getContent();
+    }
+
+    /**
+     * 페이지가 1이면 0번 튜플부터 9번 튜플까지
+     * 페이지가 2이면 10번 튜플부터 19번 튜플까지
+     */
+    private Pageable getPagingByDateTime(int page) {
+        return PageRequest.of(page, AMOUNT_OF_A_PAGE, Sort.Direction.DESC, "dateTime");
     }
 }

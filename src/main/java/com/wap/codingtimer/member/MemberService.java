@@ -1,11 +1,14 @@
 package com.wap.codingtimer.member;
 
+import com.wap.codingtimer.auth.domain.SocialLoginType;
 import com.wap.codingtimer.member.domain.Friend;
 import com.wap.codingtimer.member.domain.FriendRelation;
 import com.wap.codingtimer.member.domain.Member;
+import com.wap.codingtimer.member.dto.MemberInfo;
 import com.wap.codingtimer.member.repository.FriendRepository;
 import com.wap.codingtimer.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,13 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
+    private final PasswordEncoder bCryptPasswordEncoder;
+
+    public MemberInfo getMemberInfo(String memberId) {
+        Member member = memberRepository.findById(memberId).get();
+
+        return new MemberInfo(memberId, member.getNickname(), member.getSocialLoginType(), member.getPoints());
+    }
 
     public boolean isDuplicate(String nickname) {
         return memberRepository.existsMemberByNickname(nickname);
@@ -27,7 +37,21 @@ public class MemberService {
 
     @Transactional
     public String register(String id, String pw, String nickname) {
-        return memberRepository.save(new Member(id, pw, nickname)).getId();
+        String encode = bCryptPasswordEncoder.encode(pw);
+        return memberRepository.save(new Member(id, encode, nickname)).getId();
+    }
+
+    @Transactional
+    public String register(String snsId, SocialLoginType socialLoginType, String nickname) {
+        return memberRepository.save(new Member(snsId, socialLoginType, nickname)).getId();
+    }
+
+    public String getNickname(String memberId) {
+        return memberRepository.findById(memberId).get().getNickname();
+    }
+
+    public Long getPoints(String memberId) {
+        return memberRepository.findById(memberId).get().getPoints();
     }
 
     @Transactional
@@ -89,6 +113,6 @@ public class MemberService {
         String nicknameId = memberRepository.findByNickname(nickname).getId();
         Friend friend = friendRepository.findRelation(memberId, nicknameId).get();
 
-        friend.setRelation();
+        friend.acceptFriend();
     }
 }

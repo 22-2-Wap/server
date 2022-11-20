@@ -4,10 +4,12 @@ import com.wap.codingtimer.auth.domain.SocialLoginType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter
@@ -26,11 +28,19 @@ public class Member implements UserDetails {
     @Column(unique = true)
     private String nickname;
 
+    private Long points=0L;
+
     public Member(String id, String password, String nickname) {
         this.id = id;
         this.password = password;
         this.nickname = nickname;
         this.socialLoginType = SocialLoginType.LOCAL;
+    }
+
+    public Member(String id, SocialLoginType socialLoginType, String nickname) {
+        this.id = id;
+        this.socialLoginType = socialLoginType;
+        this.nickname = nickname;
     }
 
     /**
@@ -40,12 +50,16 @@ public class Member implements UserDetails {
         this.nickname = nickname;
     }
 
+    public void addPoints(long points) {
+        this.points += points;
+    }
+
     /**
      * UserDetails 구현
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority("USER"));
     }
 
     @Override
@@ -55,21 +69,21 @@ public class Member implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

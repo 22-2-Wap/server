@@ -26,6 +26,17 @@ public class Comment {
     private String content;
     private LocalDateTime dateTime;
 
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id=" + id +
+                ", member=" + member.getNickname() +
+                ", post=" + post.getId() +
+                ", content='" + content + '\'' +
+                ", dateTime=" + dateTime +
+                '}';
+    }
+
     /**
      * 비즈니스 로직
      */

@@ -2,14 +2,14 @@ package com.wap.codingtimer.post.domain;
 
 import com.wap.codingtimer.member.domain.Member;
 import lombok.Getter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-@ToString
 public class Post {
 
     @Id
@@ -21,15 +21,32 @@ public class Post {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    private int likes;
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<Likes> likes=new ArrayList<>();
+
     private String topic;
     private String content;
     private String category;
     private LocalDateTime dateTime;
 
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id=" + id +
+                ", member=" + member.getNickname() +
+                ", likes=" + likes.size() +
+                ", topic='" + topic + '\'' +
+                ", content='" + content + '\'' +
+                ", category='" + category + '\'' +
+                ", dateTime=" + dateTime +
+                '}';
+    }
+
     /**
      * 비즈니스 로직
      */
+
+
     public void setDateTime() {
         this.dateTime = LocalDateTime.now();
     }
@@ -48,9 +65,5 @@ public class Post {
 
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    public void setLikes(int likes) {
-        this.likes = likes;
     }
 }
