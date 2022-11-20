@@ -1,49 +1,59 @@
 package com.wap.codingtimer.auth.domain;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.Getter;
+import com.wap.codingtimer.auth.dto.TokenDto;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtTokenProvider {
-    @Value("${jwt.secret}")
-    private String SECRET;
-    @Value("${jwt.expiration}")
-    private int EXPIRY;
-    private final UserDetailsService userDetailsService;
+    private static final String SECRET = "amFlaHl1bl9qd3RfdG9rZW4K";
+    private static final String AUTHORITY_KEY = "auth";
+    private static final Long ACCESS_TOKEN_EXPIRY=30*60*1000L; //30분
+    private static final Long REFRESH_TOKEN_EXPIRY=7*24*60*60*1000L; //7일
 
-    public String createToken(String id, String nickname) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(id));
-        claims.put("nickname", nickname);
-        Date now = new Date();
+    public static String getSecret() {
+        return SECRET;
+    }
 
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + EXPIRY))
+    public TokenDto generateToken(Authentication authentication, String nickname) {
+        String authority = authentication.getAuthorities().toString();
+        long now = new Date().getTime();
+
+        String accessToken = Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim(AUTHORITY_KEY, authority)
+                .claim("nickname", nickname)
+                .setExpiration(new Date(now+ACCESS_TOKEN_EXPIRY))
                 .signWith(SignatureAlgorithm.HS256, SECRET)
                 .compact();
+
+        String refreshToken = Jwts.builder()
+                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRY))
+                .signWith(SignatureAlgorithm.HS256, SECRET)
+                .compact();
+
+        return new TokenDto(accessToken, refreshToken, nickname);
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(this.getMemberId(token));
+        Claims claims = parseClaims(token);
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(claims.get(AUTHORITY_KEY).toString());
+        UserDetails principal = new User(claims.getSubject(), "", List.of(authority));
 
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(principal, "", List.of(authority));
     }
 
     public String resolveToken(HttpServletRequest request) {
@@ -52,26 +62,32 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String jwtToken) {
         try {
-            System.out.println("token is : "+jwtToken);
-            Date expiration = Jwts.parser()
+            Jwts.parser()
                     .setSigningKey(SECRET)
-                    .parseClaimsJws(jwtToken)
-                    .getBody()
-                    .getExpiration();
+                    .parseClaimsJws(jwtToken);
 
-            return !expiration.before(new Date());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            return true;
+        } catch (SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
         }
+        return false;
     }
 
-    private String getMemberId(String token) {
-        return Jwts.parser()
-                .setSigningKey(SECRET)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+    public Claims parseClaims(String accessToken) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(SECRET)
+                    .parseClaimsJws(accessToken)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
 }

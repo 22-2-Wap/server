@@ -35,7 +35,6 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
@@ -46,6 +45,6 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().antMatchers( "/images/**", "/js/**", "/webjars/**"));
+        return (web -> web.ignoring().antMatchers( "/auth/**", "/images/**", "/js/**", "/webjars/**"));
     }
 }
