@@ -77,11 +77,11 @@ public class OauthController {
         return memberService.register(loginDto.getId(), loginDto.getPw(), loginDto.getNickname());
     }
 
-    @GetMapping("{nickname}")
+    @GetMapping("validate/{nickname}")
     public String validateNickname(@PathVariable("nickname") String nickname) {
         boolean duplicate = memberService.isDuplicate(nickname);
 
-        return duplicate? "OK": "";
+        return duplicate? "": "OK";
     }
 
     @GetMapping("{socialLoginType}")
