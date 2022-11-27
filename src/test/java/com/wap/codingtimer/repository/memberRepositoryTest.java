@@ -32,7 +32,7 @@ class memberRepositoryTest {
     @Test
     public void 중복회원_검사() throws Exception{
         //given
-        Member member1=new Member("id", "pw", "nickname");
+        Member member1=new Member("id", "pw", "nick");
 
         //when
         member1.setNickname("재현");

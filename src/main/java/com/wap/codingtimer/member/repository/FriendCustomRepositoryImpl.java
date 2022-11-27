@@ -20,8 +20,8 @@ public class FriendCustomRepositoryImpl implements FriendCustomRepository {
     @Override
     public List<Member> findFriends(String memberId) {
         return jpaQueryFactory.selectFrom(friend)
-                .where(friend.relation.eq(FriendRelation.ACCEPT)
-                        .and(friend.firstMember.id.eq(memberId))
+                .where(friend.relation.eq(FriendRelation.ACCEPT))
+                .where(friend.firstMember.id.eq(memberId)
                         .or(friend.secondMember.id.eq(memberId)))
                 .fetch()
                 .stream()

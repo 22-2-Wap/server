@@ -47,7 +47,6 @@ class PostServiceTest {
 
         //when
         List<Post> allPostsInPage = postService.getAllPostsInPage(page);
-        allPostsInPage.forEach(System.out::println);
 
         //then
         assertThat(allPostsInPage.size()).isEqualTo(5);
@@ -61,7 +60,6 @@ class PostServiceTest {
 
         //when
         List<Post> allPostsInPage = postService.getAllPostsInCategoryAndPage(category, page);
-        allPostsInPage.forEach(System.out::println);
 
         //then
         assertThat(allPostsInPage.size()).isEqualTo(0);

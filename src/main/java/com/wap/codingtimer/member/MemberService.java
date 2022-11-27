@@ -77,7 +77,7 @@ public class MemberService {
     public List<String> getReceivedNames(String memberId) {
         return friendRepository.findMemberReceived(memberId)
                 .stream()
-                .map(Friend::getSecondMember)
+                .map(Friend::getFirstMember)
                 .map(Member::getNickname)
                 .toList();
     }

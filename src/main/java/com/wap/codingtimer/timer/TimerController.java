@@ -35,7 +35,7 @@ public class TimerController {
     @GetMapping("stop")
     public String stop(HttpServletRequest request) {
         String userId = oauthService.getUserId(request);
-        timerService.start(userId);
+        timerService.stop(userId);
 
         return "OK";
     }

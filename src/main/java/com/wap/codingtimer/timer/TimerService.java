@@ -36,9 +36,8 @@ public class TimerService {
         if (optionalTimer.isEmpty() || optionalTimer.get().getDate().isBefore(today)) {
             Timer timer = new Timer(today);
             timer.setMember(memberRepository.findById(memberId).get());
-            timerRepository.save(timer);
 
-            return timer;
+            return timerRepository.save(timer);
         }
 
         //오늘의 타이머가 있을 때
@@ -50,8 +49,12 @@ public class TimerService {
         Member member = memberRepository.findById(memberId).get();
         Timer timer = getTimer(memberId);
 
+        int minutes = timer.getSumMinutes();
+        if(timer.getStatus()==StudyingStatus.STUDY)
+            minutes += getTimeDifference(timer.getTimerStart(), LocalDateTime.now());
+
         return new CurrentTimerStatusDto(member.getNickname(),
-                timer.getSumMinutes(),
+                minutes,
                 LocalDateTime.now(),
                 timer.getStatus());
     }

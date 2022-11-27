@@ -18,8 +18,9 @@ public class TimerCustomRepositoryImpl implements TimerCustomRepository {
     @Override
     public Optional<Timer> findRecentTimer(String memberId) {
         return Optional.ofNullable(
-                jpaQueryFactory.selectFrom(this.timer)
-                        .orderBy(this.timer.date.desc())
+                jpaQueryFactory.selectFrom(timer)
+                        .where(timer.member.id.eq(memberId))
+                        .orderBy(timer.date.desc())
                         .fetchOne());
     }
 }
