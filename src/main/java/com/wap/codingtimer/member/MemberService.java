@@ -31,7 +31,7 @@ public class MemberService {
         return new MemberInfo(memberId, member.getNickname(), member.getSocialLoginType(), member.getPoints());
     }
 
-    public boolean isDuplicate(String nickname) {
+    public boolean isDuplicated(String nickname) {
         return memberRepository.existsMemberByNickname(nickname);
     }
 
@@ -114,5 +114,9 @@ public class MemberService {
         Friend friend = friendRepository.findRelation(memberId, nicknameId).get();
 
         friend.acceptFriend();
+    }
+
+    public boolean isMemberExist(String memberId) {
+        return memberRepository.existsById(memberId);
     }
 }
