@@ -1,5 +1,6 @@
 package com.wap.codingtimer.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wap.codingtimer.auth.domain.JwtTokenProvider;
 import com.wap.codingtimer.auth.domain.SocialLoginType;
 import com.wap.codingtimer.auth.dto.LoginDto;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -79,7 +81,7 @@ public class OauthController {
 
     @GetMapping("validate/{nickname}")
     public String validateNickname(@PathVariable("nickname") String nickname) {
-        boolean duplicate = memberService.isDuplicate(nickname);
+        boolean duplicate = memberService.isDuplicated(nickname);
 
         return duplicate? "": "OK";
     }
@@ -91,30 +93,33 @@ public class OauthController {
 
     @GetMapping("{socialLoginType}/callback")
     public TokenDto callback(@PathVariable("socialLoginType") SocialLoginType socialLoginType,
-                           @RequestParam("code") String code) {
+                           @RequestParam("code") String code) throws JsonProcessingException {
 
         String token = oauthService.requestAccessToken(socialLoginType, code);
-        System.out.println(token);
+        String email = oauthService.requestUserInfo(socialLoginType, token);
 
-        String info = oauthService.requestUserInfo(socialLoginType, token);
-        System.out.println(info);
+        if(memberService.isMemberExist(email))
+            return snsLogin(email);
 
-//        if(!memberService.existsById(code))
-//            memberService.register(code, socialLoginType, code);
+        String nickname = "임시유저_" + UUID.randomUUID();
+        while (memberService.isDuplicated(nickname))
+            nickname = "임시유저_" + UUID.randomUUID();
 
-        return null;
+        memberService.register(email, socialLoginType, nickname);
+
+        return snsLogin(email);
     }
 
-    private TokenDto snsLogin(String code) {
-        String nickname = memberService.getNickname(code);
+    private TokenDto snsLogin(String email) {
+        String nickname = memberService.getNickname(email);
 
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("USER");
-        UserDetails principal = new User(code, "", List.of(authority));
+        UserDetails principal = new User(email, "", List.of(authority));
         Authentication authenticate = new UsernamePasswordAuthenticationToken(principal, "", List.of(authority));
 
         TokenDto token = jwtTokenProvider.generateToken(authenticate, nickname);
         redisTemplate.opsForValue()
-                .set("RT:" + code,
+                .set("RT:" + email,
                         token.getRefreshToken(),
                         token.getRefreshTokenExpirationTime(),
                         TimeUnit.MILLISECONDS);

@@ -1,14 +1,18 @@
 package com.wap.codingtimer.auth.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @Component
 @RequiredArgsConstructor
@@ -60,18 +64,26 @@ public class GoogleOauth implements SocialOauth {
     }
 
     @Override
-    public String getUserEmail(String token) {
+    public String getUserEmail(String token) throws JsonProcessingException {
         RestTemplate restTemplate = new RestTemplate();
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("access_token", token);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        Map values = objectMapper.readValue(token, Map.class);
 
-        ResponseEntity<String> responseEntity =
-                restTemplate.getForEntity(GOOGLE_SNS_USER_INFO_URL, String.class, params);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "+values.get("access_token"));
+        HttpEntity request = new HttpEntity(headers);
 
-        if (responseEntity.getStatusCode() == HttpStatus.OK)
-            return responseEntity.getBody();
+        ResponseEntity<String> response = restTemplate.exchange(GOOGLE_SNS_USER_INFO_URL,
+                HttpMethod.GET,
+                request,
+                String.class);
 
-        return "";
+        if (response.getStatusCode() == HttpStatus.OK)
+            return (String) objectMapper.readValue(response.getBody(), Map.class).get("email");
+
+        throw new NoSuchElementException("구글 로그인 이메일 가져오기 실패");
     }
 }

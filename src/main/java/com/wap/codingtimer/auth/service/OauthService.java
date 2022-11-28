@@ -1,5 +1,6 @@
 package com.wap.codingtimer.auth.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wap.codingtimer.auth.domain.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class OauthService {
         return socialOauth.requestAccessToken(code);
     }
 
-    public String requestUserInfo(SocialLoginType socialLoginType, String token) {
+    public String requestUserInfo(SocialLoginType socialLoginType, String token) throws JsonProcessingException {
         SocialOauth socialOauth = getSocialOauth(socialLoginType);
         return socialOauth.getUserEmail(token);
     }
