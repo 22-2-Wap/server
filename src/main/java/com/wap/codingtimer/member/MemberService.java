@@ -90,6 +90,9 @@ public class MemberService {
         Member member = memberRepository.findById(memberId).get();
         Member otherMember = memberRepository.findByNickname(nickname);
 
+        if(member.equals(otherMember))
+            throw new IllegalStateException("자기 자신을 추가할 수 없습니다.");
+
         Optional<Friend> relation = friendRepository.findRelation(memberId, otherMember.getId());
 
         if (relation.isPresent())
