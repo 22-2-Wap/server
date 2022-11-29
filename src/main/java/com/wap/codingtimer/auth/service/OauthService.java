@@ -26,11 +26,13 @@ public class OauthService {
 
     public String requestAccessToken(SocialLoginType socialLoginType, String code) {
         SocialOauth socialOauth = getSocialOauth(socialLoginType);
+
         return socialOauth.requestAccessToken(code);
     }
 
     public String requestUserInfo(SocialLoginType socialLoginType, String token) throws JsonProcessingException {
         SocialOauth socialOauth = getSocialOauth(socialLoginType);
+
         return socialOauth.getUserEmail(token);
     }
     private SocialOauth getSocialOauth(SocialLoginType socialLoginType) {

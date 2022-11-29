@@ -95,10 +95,13 @@ public class OauthController {
     public TokenDto callback(@PathVariable("socialLoginType") SocialLoginType socialLoginType,
                            @RequestParam("code") String code) throws JsonProcessingException {
 
+        System.out.println("code = " + code);
         String token = oauthService.requestAccessToken(socialLoginType, code);
+        System.out.println("token = " + token);
         String email = oauthService.requestUserInfo(socialLoginType, token);
+        System.out.println(email);
 
-        if(memberService.isMemberExist(email))
+        if(memberService.isSnsMemberExist(email, socialLoginType))
             return snsLogin(email);
 
         String nickname = "임시유저_" + UUID.randomUUID();
