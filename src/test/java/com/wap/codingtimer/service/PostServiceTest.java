@@ -3,8 +3,8 @@ package com.wap.codingtimer.service;
 import com.wap.codingtimer.member.domain.Member;
 import com.wap.codingtimer.member.repository.MemberRepository;
 import com.wap.codingtimer.post.PostService;
-import com.wap.codingtimer.post.domain.Post;
 import com.wap.codingtimer.post.dto.PageWithCommentsDto;
+import com.wap.codingtimer.post.dto.PostDto;
 import com.wap.codingtimer.post.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ class PostServiceTest {
         int page = 1;
 
         //when
-        List<Post> allPostsInPage = postService.getAllPostsInPage(page);
+        List<PostDto> allPostsInPage = postService.getAllPostsInPage(page);
 
         //then
         assertThat(allPostsInPage.size()).isEqualTo(5);
@@ -59,7 +59,7 @@ class PostServiceTest {
         String category = "noSuchCategory";
 
         //when
-        List<Post> allPostsInPage = postService.getAllPostsInCategoryAndPage(category, page);
+        List<PostDto> allPostsInPage = postService.getAllPostsInCategoryAndPage(category, page);
 
         //then
         assertThat(allPostsInPage.size()).isEqualTo(0);
@@ -85,15 +85,15 @@ class PostServiceTest {
     @Test
     void 삭제() throws Exception {
         //given
-        List<Post> allPostsInPage = postService.getAllPostsInPage(0);
+        List<PostDto> allPostsInPage = postService.getAllPostsInPage(0);
 
         //when
         allPostsInPage.stream()
-                .map(Post::getId)
+                .map(PostDto::getId)
                 .forEach(postService::delete);
 
         //then
-        List<Post> result = postService.getAllPostsInPage(0);
+        List<PostDto> result = postService.getAllPostsInPage(0);
         assertThat(result.size()).isEqualTo(5);
     }
 
@@ -114,16 +114,16 @@ class PostServiceTest {
         //given
         int page = 0;
         Member member = memberRepository.save(new Member("id", "pw", "nickname"));
-        List<Post> allPostsInPage = postService.getAllPostsInPage(page);
+        List<PostDto> allPostsInPage = postService.getAllPostsInPage(page);
 
         //when
         allPostsInPage.forEach(o -> postService.addLikes(member.getId(), o.getId()));
-        long likes = postService.getAllPostsInPage(page).stream()
-                .map(Post::getLikes)
-                .mapToInt(List::size)
+        int sum = postService.getAllPostsInPage(page).stream()
+                .mapToInt(PostDto::getLikes)
                 .sum();
+
         //then
-        assertThat(likes).isEqualTo(10);
+        assertThat(sum).isEqualTo(10);
     }
 
     @Test
@@ -141,8 +141,7 @@ class PostServiceTest {
 
         //then
         int sum = postService.getAllPostsInPage(page).stream()
-                .map(Post::getLikes)
-                .mapToInt(List::size)
+                .mapToInt(PostDto::getLikes)
                 .sum();
 
         assertThat(sum).isZero();

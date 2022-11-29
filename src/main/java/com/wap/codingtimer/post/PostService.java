@@ -5,7 +5,9 @@ import com.wap.codingtimer.member.repository.MemberRepository;
 import com.wap.codingtimer.post.domain.Comment;
 import com.wap.codingtimer.post.domain.Likes;
 import com.wap.codingtimer.post.domain.Post;
+import com.wap.codingtimer.post.dto.CommentDto;
 import com.wap.codingtimer.post.dto.PageWithCommentsDto;
+import com.wap.codingtimer.post.dto.PostDto;
 import com.wap.codingtimer.post.repository.CommentRepository;
 import com.wap.codingtimer.post.repository.LikesRepository;
 import com.wap.codingtimer.post.repository.PostRepository;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,23 +33,29 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final LikesRepository likesRepository;
 
-    public List<Post> getAllPostsInPage(int page) {
+    public List<PostDto> getAllPostsInPage(int page) {
         Pageable paging = getPagingByDateTime(page);
 
-        return postRepository.findAll(paging).getContent();
+        return postRepository.findAll(paging).get()
+                .map(PostDto::new)
+                .collect(Collectors.toList());
     }
 
-    public List<Post> getAllPostsInCategoryAndPage(String category, int page) {
+    public List<PostDto> getAllPostsInCategoryAndPage(String category, int page) {
         Pageable paging = getPagingByDateTime(page);
 
-        return postRepository.findAllByCategory(category, paging).getContent();
+        return postRepository.findAllByCategory(category, paging).get()
+                .map(PostDto::new)
+                .collect(Collectors.toList());
     }
 
     public PageWithCommentsDto getPageWithCommentsInPage(Long postId, int page) throws RuntimeException {
-        Post post = postRepository.findById(postId).orElseThrow();
+        PostDto post = new PostDto(postRepository.findById(postId).orElseThrow());
 
         Pageable paging = getPagingByDateTime(page);
-        List<Comment> comments = commentRepository.findAllByPostId(postId, paging).getContent();
+        List<CommentDto> comments = commentRepository.findAllByPostId(postId, paging).get()
+                .map(CommentDto::new)
+                .collect(Collectors.toList());
 
         return new PageWithCommentsDto(post, comments);
     }
@@ -79,11 +88,11 @@ public class PostService {
     public Long update(String category, Long postId, String topic, String content) {
         Post post = postRepository.findById(postId).get();
 
-        if (topic!=null)
+        if (topic != null)
             post.setTopic(topic);
-        if (category!=null)
+        if (category != null)
             post.setCategory(category);
-        if (content!=null)
+        if (content != null)
             post.setContent(content);
 
         return post.getId();
@@ -94,10 +103,11 @@ public class PostService {
         Post post = postRepository.findById(postId).get();
 
         Optional<Likes> likes = likesRepository.findLikesByMemberIdAndPostId(memberId, postId);
-        likes.ifPresentOrElse(o-> {
-            likesRepository.delete(o);
-            post.getLikes().remove(o);
-            }, ()->{
+        likes.ifPresentOrElse(o -> {
+                    o.remove();
+                    likesRepository.delete(o);
+                },
+                () -> {
                     Member member = memberRepository.findById(memberId).get();
 
                     Likes like = new Likes();
@@ -106,6 +116,10 @@ public class PostService {
                     likesRepository.save(like);
                 }
         );
+    }
+
+    public boolean isMemberPressedLike(String memberId, Long postId) {
+        return likesRepository.existsByMemberIdAndPostId(memberId, postId);
     }
 
     @Transactional
@@ -125,13 +139,18 @@ public class PostService {
 
     @Transactional
     public void removeComment(Long commentId) {
-        commentRepository.deleteById(commentId);
+        Comment comment = commentRepository.findById(commentId).get();
+        comment.setPost(null);
+        
+        commentRepository.delete(comment);
     }
 
-    public List<Post> getMemberPosts(String memberId, int page) {
+    public List<PostDto> getPostsByMemberId(String memberId, int page) {
         Pageable paging = getPagingByDateTime(page);
 
-        return postRepository.findAllByMemberId(memberId, paging).getContent();
+        return postRepository.findAllByMemberId(memberId, paging).get()
+                .map(PostDto::new)
+                .collect(Collectors.toList());
     }
 
     /**

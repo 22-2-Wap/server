@@ -13,7 +13,7 @@ public class Likes {
     @Column(name = "likes_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
@@ -31,5 +31,10 @@ public class Likes {
     public void setPost(Post post) {
         this.post = post;
         post.getLikes().add(this);
+    }
+
+    public void remove() {
+        this.post.getLikes().remove(this);
+        this.post=null;
     }
 }

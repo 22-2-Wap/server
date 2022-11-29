@@ -29,19 +29,6 @@ public class Post {
     private String category;
     private LocalDateTime dateTime;
 
-    @Override
-    public String toString() {
-        return "Post{" +
-                "id=" + id +
-                ", member=" + member.getNickname() +
-                ", likes=" + likes.size() +
-                ", topic='" + topic + '\'' +
-                ", content='" + content + '\'' +
-                ", category='" + category + '\'' +
-                ", dateTime=" + dateTime +
-                '}';
-    }
-
     /**
      * 비즈니스 로직
      */

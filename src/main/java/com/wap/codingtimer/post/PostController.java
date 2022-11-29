@@ -1,7 +1,6 @@
 package com.wap.codingtimer.post;
 
 import com.wap.codingtimer.auth.service.OauthService;
-import com.wap.codingtimer.post.domain.Post;
 import com.wap.codingtimer.post.dto.PageWithCommentsDto;
 import com.wap.codingtimer.post.dto.PostDto;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,20 +19,28 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("all/{page}")
-    public List<Post> getAllPosts(@PathVariable("page") int page) {
+    public List<PostDto> getAllPosts(@PathVariable("page") int page) {
+
         return postService.getAllPostsInPage(page);
     }
 
     @GetMapping("{category}/{page}")
-    public List<Post> getAllPostsByCategory(@PathVariable("category") String category,
+    public List<PostDto> getAllPostsByCategory(@PathVariable("category") String category,
                                             @PathVariable("page") int page) {
         return postService.getAllPostsInCategoryAndPage(category, page);
     }
 
-    @GetMapping("{id}/{reply_page}")
+    @GetMapping("/view/{id}/{reply_page}")
     public PageWithCommentsDto getPost(@PathVariable("id") Long postId,
-                                       @PathVariable("reply_page") int page) {
-        return postService.getPageWithCommentsInPage(postId, page);
+                                       @PathVariable("reply_page") int page,
+                                       HttpServletRequest request) {
+        String userId = oauthService.getUserId(request);
+
+        PageWithCommentsDto pageWithCommentsInPage = postService.getPageWithCommentsInPage(postId, page);
+        pageWithCommentsInPage.setLikePressed(
+                postService.isMemberPressedLike(userId, pageWithCommentsInPage.getPost().getId()));
+
+        return pageWithCommentsInPage;
     }
 
     @PostMapping("{category}")
@@ -72,10 +80,10 @@ public class PostController {
 
     @PostMapping("reply/{id}")
     public String addComment(@PathVariable("id") Long postId,
-                             @RequestBody String content,
+                             @RequestBody Map<String, String> content,
                              HttpServletRequest request) {
         String userId = oauthService.getUserId(request);
-        postService.addComment(userId, postId, content);
+        postService.addComment(userId, postId, content.get("content"));
 
         return "OK";
     }
@@ -88,9 +96,10 @@ public class PostController {
     }
 
     @GetMapping("my-content/{page}")
-    public List<Post> getUserPosts(@PathVariable("page") int page,
+    public List<PostDto> getUserPosts(@PathVariable("page") int page,
                                    HttpServletRequest request) {
         String userId = oauthService.getUserId(request);
-        return postService.getMemberPosts(userId, page);
+
+        return postService.getPostsByMemberId(userId, page);
     }
 }

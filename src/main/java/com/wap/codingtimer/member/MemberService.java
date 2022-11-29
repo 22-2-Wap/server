@@ -116,7 +116,9 @@ public class MemberService {
         friend.acceptFriend();
     }
 
-    public boolean isMemberExist(String memberId) {
-        return memberRepository.existsById(memberId);
+    public boolean isSnsMemberExist(String memberId, SocialLoginType socialLoginType) {
+        Member member = memberRepository.findById(memberId).get();
+
+        return member.getSocialLoginType().equals(socialLoginType);
     }
 }
