@@ -1,17 +1,18 @@
 package com.wap.codingtimer.post.dto;
 
-import com.wap.codingtimer.post.domain.Comment;
-import com.wap.codingtimer.post.domain.Post;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
-@ToString
 public class PageWithCommentsDto {
-    private final Post post;
-    private final List<Comment> comments;
+    private final PostDto post;
+    private final List<CommentDto> comments;
+    private boolean isLikePressed;
+
+    public void setLikePressed(boolean likePressed) {
+        isLikePressed = likePressed;
+    }
 }
