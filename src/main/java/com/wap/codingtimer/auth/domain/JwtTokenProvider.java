@@ -21,7 +21,7 @@ import java.util.List;
 public class JwtTokenProvider {
     private static final String SECRET = "amFlaHl1bl9qd3RfdG9rZW4K";
     private static final String AUTHORITY_KEY = "auth";
-    private static final Long ACCESS_TOKEN_EXPIRY=2*60*1000L; //30분
+    private static final Long ACCESS_TOKEN_EXPIRY=60*60*1000L; //60분
     private static final Long REFRESH_TOKEN_EXPIRY=7*24*60*60*1000L; //7일
 
     public static String getSecret() {
