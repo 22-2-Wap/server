@@ -28,4 +28,13 @@ public class PostDto {
         this.category = post.getCategory();
         this.dateTime = post.getDateTime();
     }
+
+    public PostDto(Long id, String member, int likes, String topic, String category, LocalDateTime dateTime) {
+        this.id = id;
+        this.member = member;
+        this.likes = likes;
+        this.topic = topic;
+        this.category = category;
+        this.dateTime = dateTime;
+    }
 }

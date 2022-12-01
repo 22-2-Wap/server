@@ -37,7 +37,12 @@ public class PostService {
         Pageable paging = getPagingByDateTime(page);
 
         return postRepository.findAll(paging).get()
-                .map(PostDto::new)
+                .map(o->new PostDto(o.getId(),
+                        o.getMember().getNickname(),
+                        o.getLikes().size(),
+                        o.getTopic(),
+                        o.getCategory(),
+                        o.getDateTime()))
                 .collect(Collectors.toList());
     }
 
@@ -45,7 +50,12 @@ public class PostService {
         Pageable paging = getPagingByDateTime(page);
 
         return postRepository.findAllByCategory(category, paging).get()
-                .map(PostDto::new)
+                .map(o->new PostDto(o.getId(),
+                        o.getMember().getNickname(),
+                        o.getLikes().size(),
+                        o.getTopic(),
+                        o.getCategory(),
+                        o.getDateTime()))
                 .collect(Collectors.toList());
     }
 

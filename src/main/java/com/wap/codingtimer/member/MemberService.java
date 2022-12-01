@@ -50,10 +50,6 @@ public class MemberService {
         return memberRepository.findById(memberId).get().getNickname();
     }
 
-    public Long getPoints(String memberId) {
-        return memberRepository.findById(memberId).get().getPoints();
-    }
-
     @Transactional
     public String changeNickname(String memberId, String nickname) {
         Member member = memberRepository.findById(memberId).get();

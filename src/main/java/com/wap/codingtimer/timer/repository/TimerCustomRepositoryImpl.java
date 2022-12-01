@@ -21,6 +21,6 @@ public class TimerCustomRepositoryImpl implements TimerCustomRepository {
                 jpaQueryFactory.selectFrom(timer)
                         .where(timer.member.id.eq(memberId))
                         .orderBy(timer.date.desc())
-                        .fetchOne());
+                        .fetchFirst());
     }
 }
