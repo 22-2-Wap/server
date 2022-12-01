@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+#    username: hjaehyun25
+#    password: labi2601
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+
+  redis:
+    host: localhost
+    port: 6379
+
+jwt:
+  secret: amFlaHl1bl9qd3RfdG9rZW4K
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+
+sns:
+  google:
+    url: https://accounts.google.com/o/oauth2/v2/auth
+    client:
+      id: 544904518174-pmk17ruc0soejo0gi1m0q94ah3ko8s91.apps.googleusercontent.com
+      secret: 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
+    callback:
+      url: http://localhost:9000/auth/google/callback
+    token:
+      url: https://oauth2.googleapis.com/token
+    info:
+      url: https://oauth2.googleapis.com/drive/v2/files

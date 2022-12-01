@@ -31,8 +31,12 @@ public class MemberService {
         return new MemberInfo(memberId, member.getNickname(), member.getSocialLoginType(), member.getPoints());
     }
 
-    public boolean isDuplicated(String nickname) {
+    public boolean isNicknameDuplicated(String nickname) {
         return memberRepository.existsMemberByNickname(nickname);
+    }
+
+    public boolean isIdDuplicated(String id) {
+        return memberRepository.existsById(id);
     }
 
     @Transactional

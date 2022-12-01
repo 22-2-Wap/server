@@ -46,5 +46,4 @@ src/test/resources/application.yml
 .DS_Store
 src/.DS_Store
 src/main/.DS_Store
-src/main/resources/
 src/test/.DS_Store

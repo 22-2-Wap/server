@@ -79,9 +79,16 @@ public class OauthController {
         return memberService.register(loginDto.getId(), loginDto.getPw(), loginDto.getNickname());
     }
 
-    @GetMapping("validate/{nickname}")
+    @GetMapping("validate/nickname/{nickname}")
     public String validateNickname(@PathVariable("nickname") String nickname) {
-        boolean duplicate = memberService.isDuplicated(nickname);
+        boolean duplicate = memberService.isNicknameDuplicated(nickname);
+
+        return duplicate? "": "OK";
+    }
+
+    @GetMapping("validate/id/{id}")
+    public String validateId(@PathVariable("id") String id) {
+        boolean duplicate = memberService.isIdDuplicated(id);
 
         return duplicate? "": "OK";
     }
@@ -105,7 +112,7 @@ public class OauthController {
             return snsLogin(email);
 
         String nickname = "임시유저_" + UUID.randomUUID();
-        while (memberService.isDuplicated(nickname))
+        while (memberService.isNicknameDuplicated(nickname))
             nickname = "임시유저_" + UUID.randomUUID();
 
         memberService.register(email, socialLoginType, nickname);
