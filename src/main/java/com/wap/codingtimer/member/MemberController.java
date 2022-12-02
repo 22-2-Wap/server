@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,7 +73,13 @@ public class MemberController {
     public String requestFriend(@PathVariable("nickname") String nickname,
                                 HttpServletRequest request) {
         String userId = oauthService.getUserId(request);
-        memberService.requestFriend(userId, nickname);
+        try {
+            memberService.requestFriend(userId, nickname);
+        } catch (IllegalStateException i) {
+            return "이미 요청된 친구입니다.";
+        } catch (NoSuchElementException n) {
+            return "존재하지 않는 유저입니다.";
+        }
 
         return nickname;
     }

@@ -96,7 +96,7 @@ public class MemberService {
         Optional<Friend> relation = friendRepository.findRelation(memberId, otherMember.getId());
 
         if (relation.isPresent())
-            throw new NoSuchElementException("이미 요청되거나 추가된 친구입니다.");
+            throw new IllegalStateException("이미 요청되거나 추가된 친구입니다.");
 
         Friend friend = new Friend(member, otherMember, FriendRelation.REQUEST);
         return friendRepository.save(friend);
