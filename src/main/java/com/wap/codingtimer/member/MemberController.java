@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class MemberController {
         List<CurrentTimerStatusDto> friendsStatus = friends.stream()
                 .map(Member::getId)
                 .map(timerService::getCurrentUserStatus)
-                .sorted(Comparator.comparingInt(CurrentTimerStatusDto::getMinutes))
+                .sorted(Comparator.comparingInt(CurrentTimerStatusDto::getMinutes).reversed())
                 .toList();
 
         List<FriendsInfo> result = new ArrayList<>();
@@ -73,13 +72,7 @@ public class MemberController {
     public String requestFriend(@PathVariable("nickname") String nickname,
                                 HttpServletRequest request) {
         String userId = oauthService.getUserId(request);
-        try {
-            memberService.requestFriend(userId, nickname);
-        } catch (IllegalStateException i) {
-            return "이미 요청된 친구입니다.";
-        } catch (NoSuchElementException n) {
-            return "존재하지 않는 유저입니다.";
-        }
+        memberService.requestFriend(userId, nickname);
 
         return nickname;
     }
