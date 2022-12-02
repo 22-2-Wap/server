@@ -8,12 +8,15 @@ import com.wap.codingtimer.member.dto.RequestListDto;
 import com.wap.codingtimer.timer.TimerService;
 import com.wap.codingtimer.timer.dto.CurrentTimerStatusDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -72,7 +75,13 @@ public class MemberController {
     public String requestFriend(@PathVariable("nickname") String nickname,
                                 HttpServletRequest request) {
         String userId = oauthService.getUserId(request);
-        memberService.requestFriend(userId, nickname);
+        try {
+            memberService.requestFriend(userId, nickname);
+        } catch (IllegalStateException i) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미 요청되거나 추가된 친구입니다.");
+        } catch (NoSuchElementException n) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "해당 유저가 존재하지 않습니다.");
+        }
 
         return nickname;
     }
